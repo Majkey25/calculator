@@ -11,7 +11,6 @@
             background-color: #f4f4f4;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
             align-items: center;
             height: 100vh;
             margin: 0;
@@ -21,7 +20,28 @@
         h1 {
             color: #333;
         }
+
+        .menu {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .menu button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .menu button:hover {
+            background-color: #218838;
+        }
+
         .calculator {
+            display: none; /* Initially hidden */
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
@@ -29,12 +49,20 @@
             max-width: 400px;
             width: 100%;
             margin-bottom: 30px;
+            animation: fadeIn 0.5s; /* Animation for appearing */
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         label, select, input {
             display: block;
             width: 100%;
             margin: 10px 0;
         }
+
         button {
             background-color: #28a745;
             color: white;
@@ -44,15 +72,28 @@
             cursor: pointer;
             width: 100%;
         }
+
         button:hover {
             background-color: #218838;
         }
+
         footer {
             margin-top: 20px;
             font-size: 14px;
             color: #888;
             text-align: center;
         }
+        
+        #calculationPath, #calculationResult {
+            white-space: pre-wrap; /* Preserve formatting in the conversion path */
+            margin-top: 10px;
+            padding: 10px; /* Padding for better appearance */
+            background-color: #f9f9f9; /* Background for visibility */
+            border: 1px solid #ddd; /* Border for separation */
+            border-radius: 5px; /* Rounded corners */
+            overflow-x: auto; /* Allow horizontal scrolling */
+        }
+
         @media (max-width: 600px) {
             .calculator {
                 padding: 15px;
@@ -62,14 +103,40 @@
                 font-size: 24px;
             }
         }
+
+        .calculation-table {
+            display: table;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .calculation-row {
+            display: table-row;
+        }
+        .calculation-cell {
+            display: table-cell;
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        .calculation-cell:last-child {
+            border-right: none; /* Remove border from the last cell */
+        }
     </style>
 </head>
 <body>
 
     <h1>Multi-purpose Calculator</h1>
-    
+
+    <div class="menu">
+        <button onclick="showCalculator('distanceCalc')">Distance to Time</button>
+        <button onclick="showCalculator('tempCalc')">Temperature Conversion</button>
+        <button onclick="showCalculator('weightCalc')">Weight Conversion</button>
+        <button onclick="showCalculator('numeralCalc')">Numeral Systems</button>
+    </div>
+
     <!-- Distance and Speed to Time Calculator -->
-    <div class="calculator">
+    <div class="calculator" id="distanceCalc">
         <h2>Convert Distance and Speed to Time</h2>
         <label for="distance">Distance</label>
         <input type="number" id="distance" placeholder="Enter distance">
@@ -90,82 +157,91 @@
         <p id="result"></p>
     </div>
 
-   <!-- Temperature Conversion -->
-   <div class="calculator">
-    <h2>Temperature Conversion</h2>
-    <label for="temperature">Temperature</label>
-    <input type="number" id="temperature" placeholder="Enter temperature">
-    <select id="tempFrom">
-        <option value="celsius">Celsius</option>
-        <option value="fahrenheit">Fahrenheit</option>
-        <option value="kelvin">Kelvin</option>
-    </select>
-    <label>to</label>
-    <select id="tempTo">
-        <option value="celsius">Celsius</option>
-        <option value="fahrenheit">Fahrenheit</option>
-        <option value="kelvin">Kelvin</option>
-    </select>
+    <!-- Temperature Conversion -->
+    <div class="calculator" id="tempCalc">
+        <h2>Temperature Conversion</h2>
+        <label for="temperature">Temperature</label>
+        <input type="number" id="temperature" placeholder="Enter temperature">
+        <select id="tempFrom">
+            <option value="celsius">Celsius</option>
+            <option value="fahrenheit">Fahrenheit</option>
+            <option value="kelvin">Kelvin</option>
+        </select>
+        <label>to</label>
+        <select id="tempTo">
+            <option value="celsius">Celsius</option>
+            <option value="fahrenheit">Fahrenheit</option>
+            <option value="kelvin">Kelvin</option>
+        </select>
 
-    <button onclick="convertTemperature()">Convert Temperature</button>
+        <button onclick="convertTemperature()">Convert Temperature</button>
 
-    <p id="tempResult"></p>
-</div>
+        <p id="tempResult"></p>
+    </div>
 
-<!-- Weight Conversion -->
-<div class="calculator">
-    <h2>Weight Conversion</h2>
-    <label for="weight">Weight</label>
-    <input type="number" id="weight" placeholder="Enter weight">
-    <select id="weightFrom">
-        <option value="kg">Kilograms</option>
-        <option value="g">Grams</option>
-        <option value="lb">Pounds</option>
-    </select>
-    <label>to</label>
-    <select id="weightTo">
-        <option value="kg">Kilograms</option>
-        <option value="g">Grams</option>
-        <option value="lb">Pounds</option>
-    </select>
+    <!-- Weight Conversion -->
+    <div class="calculator" id="weightCalc">
+        <h2>Weight Conversion</h2>
+        <label for="weight">Weight</label>
+        <input type="number" id="weight" placeholder="Enter weight">
+        <select id="weightFrom">
+            <option value="kg">Kilograms</option>
+            <option value="g">Grams</option>
+            <option value="lb">Pounds</option>
+        </select>
+        <label>to</label>
+        <select id="weightTo">
+            <option value="kg">Kilograms</option>
+            <option value="g">Grams</option>
+            <option value="lb">Pounds</option>
+        </select>
 
-    <button onclick="convertWeight()">Convert Weight</button>
+        <button onclick="convertWeight()">Convert Weight</button>
 
-    <p id="weightResult"></p>
-</div>
-   <!-- Numeral Systems Converter -->
-   <div class="calculator">
-    <h2>Numeral Systems Converter</h2>
-    <label for="sourceNum">Source Number</label>
-    <input type="number" id="sourceNum" placeholder="Enter number">
+        <p id="weightResult"></p>
+    </div>
 
-    <label for="sourceBase">Source Base</label>
-    <select id="sourceBase">
-        <option value="10">Decimal (10)</option>
-        <option value="2">Binary (2)</option>
-        <option value="16">Hexadecimal (16)</option>
-    </select>
+    <!-- Numeral Systems Converter -->
+    <div class="calculator" id="numeralCalc">
+        <h2>Numeral Systems Converter</h2>
+        <label for="sourceNum">Source Number</label>
+        <input type="number" id="sourceNum" placeholder="Enter number">
 
-    <label for="targetBase">Target Base</label>
-    <select id="targetBase">
-        <option value="10">Decimal (10)</option>
-        <option value="2">Binary (2)</option>
-        <option value="16">Hexadecimal (16)</option>
-    </select>
+        <label for="sourceBase">Source Base</label>
+        <select id="sourceBase">
+            <option value="10">Decimal (10)</option>
+            <option value="2">Binary (2)</option>
+            <option value="16">Hexadecimal (16)</option>
+        </select>
 
-    <button onclick="convertNumeralSystem()">Convert</button>
+        <label for="targetBase">Target Base</label>
+        <select id="targetBase">
+            <option value="10">Decimal (10)</option>
+            <option value="2">Binary (2)</option>
+            <option value="16">Hexadecimal (16)</option>
+        </select>
 
-    <p id="conversionResult"></p>
-    <div id="calculationPath" class="calculation-path"></div>
-</div>
+        <button onclick="convertNumeralSystem()">Convert</button>
 
-     <footer style="display: flex; justify-content: center; align-items: center; text-align: center;">
+        <p id="conversionResult"></p>
+        <div id="calculationPath" class="calculation-table"></div>
+    </div>
+
+    <footer style="display: flex; justify-content: center; align-items: center; text-align: center;">
         <a href="https://majkey25.github.io/Majkey25/" style="text-decoration: none; color: inherit;">
             <p style="margin: 1;">Made by Matěj Teplý &copy; <span id="year"></span> All rights reserved.</p>
         </a>
     </footer>
 
     <script>
+        function showCalculator(calcId) {
+            const calculators = document.querySelectorAll('.calculator');
+            calculators.forEach(calc => {
+                calc.style.display = 'none'; // Hide all calculators
+            });
+            document.getElementById(calcId).style.display = 'block'; // Show selected calculator
+        }
+
         function calculateTime() {
             const distance = parseFloat(document.getElementById('distance').value);
             const speed = parseFloat(document.getElementById('speed').value);
@@ -215,17 +291,17 @@
             } else if (fromUnit === 'kelvin' && toUnit === 'fahrenheit') {
                 result = (temperature - 273.15) * 9/5 + 32;
             } else {
-                result = temperature;
+                result = temperature; // Same unit
             }
 
-            document.getElementById('tempResult').innerText = `Temperature: ${result.toFixed(2)} ${toUnit}`;
+            document.getElementById('tempResult').innerText = `Converted Temperature: ${result.toFixed(2)} ${toUnit.charAt(0).toUpperCase() + toUnit.slice(1)}`;
         }
 
         function convertWeight() {
             const weight = parseFloat(document.getElementById('weight').value);
             const fromUnit = document.getElementById('weightFrom').value;
             const toUnit = document.getElementById('weightTo').value;
-            let result = weight;
+            let result;
 
             if (fromUnit === 'kg' && toUnit === 'g') {
                 result = weight * 1000;
@@ -238,63 +314,135 @@
             } else if (fromUnit === 'lb' && toUnit === 'kg') {
                 result = weight / 2.20462;
             } else if (fromUnit === 'lb' && toUnit === 'g') {
-                result = weight * 453.592;
+                result = weight / 0.00220462;
+            } else {
+                result = weight; // Same unit
             }
 
-            document.getElementById('weightResult').innerText = `Weight: ${result.toFixed(2)} ${toUnit}`;
+            document.getElementById('weightResult').innerText = `Converted Weight: ${result.toFixed(2)} ${toUnit.charAt(0).toUpperCase() + toUnit.slice(1)}`;
         }
         function convertNumeralSystem() {
-            const sourceNum = document.getElementById('sourceNum').value;
-            const sourceBase = parseInt(document.getElementById('sourceBase').value);
-            const targetBase = parseInt(document.getElementById('targetBase').value);
+    const sourceNum = document.getElementById('sourceNum').value;
+    const sourceBase = parseInt(document.getElementById('sourceBase').value);
+    const targetBase = parseInt(document.getElementById('targetBase').value);
+    let result = '';
+    let conversionSteps = '';
 
-            let result = '';
-            let calculationPath = '';
-
-            if (sourceBase === 10) { // Decimal to other bases
-                const decimalNumber = parseInt(sourceNum, 10);
-                if (targetBase === 2) { // Decimal to Binary
-                    result = decimalNumber.toString(2);
-                    calculationPath = decimalToBinary(decimalNumber);
-                } else if (targetBase === 16) { // Decimal to Hexadecimal
-                    result = decimalNumber.toString(16).toUpperCase();
-                }
-            } else if (sourceBase === 2) { // Binary to Decimal
-                const decimalNumber = parseInt(sourceNum, 2);
-                if (targetBase === 10) {
-                    result = decimalNumber;
-                } else if (targetBase === 16) { // Binary to Hexadecimal
-                    result = decimalNumber.toString(16).toUpperCase();
-                }
-            } else if (sourceBase === 16) { // Hexadecimal to Decimal
-                const decimalNumber = parseInt(sourceNum, 16);
-                if (targetBase === 10) {
-                    result = decimalNumber;
-                } else if (targetBase === 2) { // Hexadecimal to Binary
-                    result = decimalNumber.toString(2);
-                    calculationPath = decimalToBinary(decimalNumber);
+    if (sourceBase === 2) { // Binary to Decimal or Hexadecimal
+        const decimalNumber = parseInt(sourceNum, 2);
+        if (targetBase === 10) { // Binary to Decimal
+            result = decimalNumber;
+            conversionSteps += `Conversion from 2s system to 10s system:\n`;
+            for (let i = 0; i < sourceNum.length; i++) {
+                conversionSteps += `${sourceNum[i]} ∙ 2<sup>${sourceNum.length - 1 - i}</sup> `;
+                if (i < sourceNum.length - 1) {
+                    conversionSteps += '+ ';
                 }
             }
-
-            document.getElementById('conversionResult').innerText = `Result: ${result}`;
-            document.getElementById('calculationPath').innerText = calculationPath;
-        }
-
-        function decimalToBinary(decimalNumber) {
-            let steps = [];
-            let path = `Conversion from ${decimalNumber}₁₀ to binary:\n`;
-            while (decimalNumber > 0) {
-                let remainder = decimalNumber % 2;
-                steps.push(remainder);
-                path += `${decimalNumber} : 2 = ${Math.floor(decimalNumber / 2)} R ${remainder}\n`;
-                decimalNumber = Math.floor(decimalNumber / 2);
+            conversionSteps += `= ${decimalNumber}\n`;
+        } else if (targetBase === 16) { // Binary to Hexadecimal
+            result = decimalNumber.toString(16).toUpperCase();
+            conversionSteps += `Conversion from 2s system to 10s system:\n`;
+            for (let i = 0; i < sourceNum.length; i++) {
+                conversionSteps += `${sourceNum[i]} ∙ 2<sup>${sourceNum.length - 1 - i}</sup> `;
+                if (i < sourceNum.length - 1) {
+                    conversionSteps += '+ ';
+                }
             }
-            path += `${steps.reverse().join('')}₂`;
-            return path;
-        }
+            conversionSteps += `= ${decimalNumber}\n`;
 
-        document.getElementById('year').textContent = new Date().getFullYear();
+            // Conversion from Decimal to Hexadecimal
+            conversionSteps += `Conversion from 10s system to 16s system:\n`;
+            let tempDecimal = decimalNumber;
+            const hexDigits = '0123456789ABCDEF';
+            let hexResult = '';
+            let divisionSteps = [];
+
+            while (tempDecimal > 0) {
+                let remainder = tempDecimal % 16;
+                hexResult = hexDigits[remainder] + hexResult;
+                divisionSteps.push(`${tempDecimal} : 16 = ${Math.floor(tempDecimal / 16)} R ${remainder}`);
+                tempDecimal = Math.floor(tempDecimal / 16);
+            }
+
+            // Format division steps with alignment
+            for (let step of divisionSteps.reverse()) {
+                const parts = step.split(' R ');
+                const leftSide = parts[0].padEnd(20, ' '); // Align left side
+                const rightSide = 'R ' + parts[1];
+                conversionSteps += leftSide + rightSide + '\n';
+            }
+
+            conversionSteps += `${decimalNumber} ≙ ${hexResult}₁₆`;
+            result = hexResult;
+        }
+    } else if (sourceBase === 10) { // Decimal to Binary or Hexadecimal
+        let decimalNumber = parseInt(sourceNum, 10);
+        if (targetBase === 2) { // Decimal to Binary
+            result = '';
+            conversionSteps += `Conversion from 10s system to 2s system:\n`;
+            let num = decimalNumber;
+            while (num > 0) {
+                result = (num % 2) + result;
+                conversionSteps += `${num} : 2 = ${Math.floor(num / 2)} R ${num % 2}\n`;
+                num = Math.floor(num / 2);
+            }
+            conversionSteps += `${sourceNum} ≙ ${result}₂`;
+        } else if (targetBase === 16) { // Decimal to Hexadecimal
+            let num = decimalNumber;
+            const hexDigits = '0123456789ABCDEF';
+            result = '';
+            conversionSteps += `Conversion from 10s system to 16s system:\n`;
+            let divisionSteps = [];
+
+            while (num > 0) {
+                let remainder = num % 16;
+                result = hexDigits[remainder] + result;
+                divisionSteps.push(`${num} : 16 = ${Math.floor(num / 16)} R ${remainder}`);
+                num = Math.floor(num / 16);
+            }
+
+            // Format division steps with alignment
+            for (let step of divisionSteps.reverse()) {
+                const parts = step.split(' R ');
+                const leftSide = parts[0].padEnd(20, ' '); // Align left side
+                const rightSide = 'R ' + parts[1];
+                conversionSteps += leftSide + rightSide + '\n';
+            }
+
+            conversionSteps += `${sourceNum} ≙ ${result}₁₆`;
+        }
+    } else if (sourceBase === 16) { // Hexadecimal to Decimal or Binary
+        const decimalNumber = parseInt(sourceNum, 16);
+        if (targetBase === 10) { // Hexadecimal to Decimal
+            result = decimalNumber;
+            conversionSteps += `Conversion from 16s system to 10s system:\n`;
+            conversionSteps += `${sourceNum} ≙ ${decimalNumber}\n`;
+        } else if (targetBase === 2) { // Hexadecimal to Binary
+            result = decimalNumber.toString(2);
+            conversionSteps += `Conversion from 16s system to 10s system:\n`;
+            conversionSteps += `${sourceNum} ≙ ${decimalNumber}\n`;
+            conversionSteps += `Conversion from 10s system to 2s system:\n`;
+            for (let i = 0; i < result.length; i++) {
+                conversionSteps += `${result[i]} ∙ 2<sup>${result.length - 1 - i}</sup> `;
+                if (i < result.length - 1) {
+                    conversionSteps += '+ ';
+                }
+            }
+            conversionSteps += `= ${result}`;
+        }
+    }
+
+    document.getElementById('conversionResult').innerHTML = `Converted Value: ${result}`;
+    document.getElementById('calculationPath').innerHTML = conversionSteps;
+}
+
+
+        // Show the initial calculator (Distance to Time)
+        showCalculator('distanceCalc');
+
+        // Update footer year dynamically
+        document.getElementById('year').innerText = new Date().getFullYear();
     </script>
- 
 </body>
 </html>
