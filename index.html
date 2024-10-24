@@ -321,6 +321,9 @@
 
             document.getElementById('weightResult').innerText = `Converted Weight: ${result.toFixed(2)} ${toUnit.charAt(0).toUpperCase() + toUnit.slice(1)}`;
         }
+document.getElementById('weightResult').innerText = `Converted Weight: ${result.toFixed(2)} ${toUnit.charAt(0).toUpperCase() + toUnit.slice(1)}`;
+}
+
 function convertNumeralSystem() {
     const sourceNum = document.getElementById('sourceNum').value;
     const sourceBase = parseInt(document.getElementById('sourceBase').value);
