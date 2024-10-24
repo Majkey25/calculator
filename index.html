@@ -25,6 +25,8 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            overflow-x: auto; /* Horizontal scrolling */
+            padding: 0 10px;
         }
 
         .menu button {
@@ -34,13 +36,14 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            white-space: nowrap; /* Keep buttons on one line */
         }
 
         .menu button:hover {
             background-color: #218838;
         }
 
-        .calculator {
+        .calculator, .scientific-calculator {
             display: none; /* Initially hidden */
             background-color: #fff;
             padding: 20px;
@@ -122,6 +125,25 @@
         .calculation-cell:last-child {
             border-right: none; /* Remove border from the last cell */
         }
+
+         /* Scientific Calculator Styles */
+         .scientific-calculator {
+            max-width: 600px;
+        }
+        .scientific-calculator input {
+            font-size: 20px;
+            text-align: right;
+        }
+        .scientific-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .scientific-buttons button {
+            padding: 15px;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -129,10 +151,36 @@
     <h1>Multi-purpose Calculator</h1>
 
     <div class="menu">
+        <button onclick="showCalculator('scientificCalc')">Calculator</button>
         <button onclick="showCalculator('distanceCalc')">Distance to Time</button>
         <button onclick="showCalculator('tempCalc')">Temperature Conversion</button>
         <button onclick="showCalculator('weightCalc')">Weight Conversion</button>
         <button onclick="showCalculator('numeralCalc')">Numeral Systems</button>
+    </div>
+    <div class="scientific-calculator" id="scientificCalc">
+        <h2>Scientific Calculator</h2>
+        <input type="text" id="sciDisplay" placeholder="0" disabled>
+        <div class="scientific-buttons">
+            <button onclick="appendSciCalc('7')">7</button>
+            <button onclick="appendSciCalc('8')">8</button>
+            <button onclick="appendSciCalc('9')">9</button>
+            <button onclick="performSciCalc('÷')">÷</button>
+
+            <button onclick="appendSciCalc('4')">4</button>
+            <button onclick="appendSciCalc('5')">5</button>
+            <button onclick="appendSciCalc('6')">6</button>
+            <button onclick="performSciCalc('×')">×</button>
+
+            <button onclick="appendSciCalc('1')">1</button>
+            <button onclick="appendSciCalc('2')">2</button>
+            <button onclick="appendSciCalc('3')">3</button>
+            <button onclick="performSciCalc('-')">-</button>
+
+            <button onclick="appendSciCalc('0')">0</button>
+            <button onclick="performSciCalc('.')">.</button>
+            <button onclick="performSciCalc('=')">=</button>
+            <button onclick="performSciCalc('+')">+</button>
+        </div>
     </div>
 
     <!-- Distance and Speed to Time Calculator -->
@@ -234,6 +282,36 @@
     </footer>
 
     <script>
+          function showCalculator(calcId) {
+            const calculators = document.querySelectorAll('.calculator, .scientific-calculator');
+            calculators.forEach(calc => {
+                calc.style.display = 'none'; // Hide all calculators
+            });
+            document.getElementById(calcId).style.display = 'block'; // Show selected calculator
+        }
+
+        // Scientific Calculator Functions
+        let sciCalcExpression = '';
+
+        function appendSciCalc(value) {
+            sciCalcExpression += value;
+            document.getElementById('sciDisplay').value = sciCalcExpression;
+        }
+
+        function performSciCalc(operator) {
+            if (operator === '=') {
+                try {
+                    sciCalcExpression = eval(sciCalcExpression.replace('×', '*').replace('÷', '/'));
+                    document.getElementById('sciDisplay').value = sciCalcExpression;
+                } catch (error) {
+                    document.getElementById('sciDisplay').value = 'Error';
+                    sciCalcExpression = '';
+                }
+            } else {
+                sciCalcExpression += operator;
+                document.getElementById('sciDisplay').value = sciCalcExpression;
+            }
+        }
         function showCalculator(calcId) {
             const calculators = document.querySelectorAll('.calculator');
             calculators.forEach(calc => {
