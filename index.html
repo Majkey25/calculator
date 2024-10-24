@@ -15,18 +15,26 @@
             height: 100vh;
             margin: 0;
             padding-top: 20px;
+            overflow-x: hidden; /* Prevent horizontal overflow on body */
         }
 
         h1 {
             color: #333;
         }
 
+        .menu-container {
+            width: 80%; /* Set to a specific width */
+            max-width: 800px; /* Optional: max width to keep it manageable */
+            overflow-x: auto; /* Enable horizontal scrolling */
+            white-space: nowrap; /* Prevent wrapping of buttons */
+            padding: 0 10px; /* Add some padding */
+            text-align: center; /* Center align buttons */
+        }
+
         .menu {
-            display: flex;
+            display: inline-flex; /* Use inline-flex to keep it in a single line */
             gap: 10px;
             margin-bottom: 20px;
-            overflow-x: auto; /* Horizontal scrolling */
-            padding: 0 10px;
         }
 
         .menu button {
@@ -49,10 +57,11 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
+            max-width: 300px;
             width: 100%;
             margin-bottom: 30px;
             animation: fadeIn 0.5s; /* Animation for appearing */
+            text-align: center; /* Center the content */
         }
 
         @keyframes fadeIn {
@@ -86,7 +95,7 @@
             color: #888;
             text-align: center;
         }
-        
+
         #calculationPath, #calculationResult {
             white-space: pre-wrap; /* Preserve formatting in the conversion path */
             margin-top: 10px;
@@ -97,7 +106,7 @@
             overflow-x: auto; /* Allow horizontal scrolling */
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 400px) {
             .calculator {
                 padding: 15px;
                 font-size: 14px;
@@ -113,52 +122,60 @@
             margin-top: 10px;
             font-size: 14px;
         }
+
         .calculation-row {
             display: table-row;
         }
+
         .calculation-cell {
             display: table-cell;
             padding: 5px;
             border-bottom: 1px solid #ddd;
             text-align: left;
         }
+
         .calculation-cell:last-child {
             border-right: none; /* Remove border from the last cell */
         }
 
-         /* Scientific Calculator Styles */
-         .scientific-calculator {
-            max-width: 600px;
+        .scientific-calculator {
+            max-width: 300px; /* Decrease max-width for narrowness */
+            width: 100%; /* Ensure it takes full width available */
+            padding: 15px; /* Reduce padding for a more compact look */
         }
+
         .scientific-calculator input {
-            font-size: 20px;
+            font-size: 18px; /* Slightly smaller font size for mobile */
             text-align: right;
         }
+
         .scientific-buttons {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             margin-top: 10px;
         }
+
         .scientific-buttons button {
-            padding: 15px;
-            font-size: 18px;
+            padding: 12px; /* Smaller padding for buttons */
+            font-size: 16px; /* Slightly smaller font size for buttons */
         }
     </style>
 </head>
 <body>
 
     <h1>Multi-purpose Calculator</h1>
-
-    <div class="menu">
-        <button onclick="showCalculator('scientificCalc')">Calculator</button>
-        <button onclick="showCalculator('distanceCalc')">Distance to Time</button>
-        <button onclick="showCalculator('tempCalc')">Temperature Conversion</button>
-        <button onclick="showCalculator('weightCalc')">Weight Conversion</button>
-        <button onclick="showCalculator('numeralCalc')">Numeral Systems</button>
+    <div class="menu-container"> <!-- Wrap the menu with this container -->
+        <div class="menu">
+            <button onclick="showCalculator('scientificCalc')">Calculator</button>
+            <button onclick="showCalculator('distanceCalc')">Distance to Time</button>
+            <button onclick="showCalculator('tempCalc')">Temperature Conversion</button>
+            <button onclick="showCalculator('weightCalc')">Weight Conversion</button>
+            <button onclick="showCalculator('numeralCalc')">Numeral Systems</button>
+        </div>
     </div>
     <div class="scientific-calculator" id="scientificCalc">
-        <h2>Scientific Calculator</h2>
+        <h2>Calculator</h2>
         <input type="text" id="sciDisplay" placeholder="0" disabled>
         <div class="scientific-buttons">
             <button onclick="appendSciCalc('7')">7</button>
@@ -180,6 +197,7 @@
             <button onclick="performSciCalc('.')">.</button>
             <button onclick="performSciCalc('=')">=</button>
             <button onclick="performSciCalc('+')">+</button>
+            <button onclick="clearSciCalc()">C</button>
         </div>
     </div>
 
@@ -215,7 +233,7 @@
             <option value="fahrenheit">Fahrenheit</option>
             <option value="kelvin">Kelvin</option>
         </select>
-        <label>to</label>
+        <span>to</span>
         <select id="tempTo">
             <option value="celsius">Celsius</option>
             <option value="fahrenheit">Fahrenheit</option>
@@ -237,7 +255,7 @@
             <option value="g">Grams</option>
             <option value="lb">Pounds</option>
         </select>
-        <label>to</label>
+        <span>to</span>
         <select id="weightTo">
             <option value="kg">Kilograms</option>
             <option value="g">Grams</option>
@@ -282,43 +300,53 @@
     </footer>
 
     <script>
-          function showCalculator(calcId) {
-            const calculators = document.querySelectorAll('.calculator, .scientific-calculator');
-            calculators.forEach(calc => {
-                calc.style.display = 'none'; // Hide all calculators
-            });
-            document.getElementById(calcId).style.display = 'block'; // Show selected calculator
-        }
+       function showCalculator(calcId) {
+    // Hide all calculators
+    const calculators = document.querySelectorAll('.calculator, .scientific-calculator');
+    calculators.forEach(calc => {
+        calc.style.display = 'none'; // Hide all calculators
+    });
+    
+    // Show selected calculator
+    const selectedCalculator = document.getElementById(calcId);
+    if (selectedCalculator) {
+        selectedCalculator.style.display = 'block'; // Show the selected calculator
+    }
+}
+ // Scientific Calculator Functions
+ let currentInput = '';
 
-        // Scientific Calculator Functions
-        let sciCalcExpression = '';
+function appendSciCalc(value) {
+    const display = document.getElementById('sciDisplay');
+    if (display.value === '0' || currentInput === '') {
+        currentInput = value;
+    } else {
+        currentInput += value;
+    }
+    display.value = currentInput;
+}
 
-        function appendSciCalc(value) {
-            sciCalcExpression += value;
-            document.getElementById('sciDisplay').value = sciCalcExpression;
+function performSciCalc(operation) {
+    const display = document.getElementById('sciDisplay');
+    if (operation === '=') {
+        try {
+            currentInput = eval(currentInput.replace('×', '*').replace('÷', '/'));
+        } catch {
+            currentInput = 'Error';
         }
+        display.value = currentInput;
+    } else {
+        currentInput += operation;
+        display.value = currentInput;
+    }
+}
 
-        function performSciCalc(operator) {
-            if (operator === '=') {
-                try {
-                    sciCalcExpression = eval(sciCalcExpression.replace('×', '*').replace('÷', '/'));
-                    document.getElementById('sciDisplay').value = sciCalcExpression;
-                } catch (error) {
-                    document.getElementById('sciDisplay').value = 'Error';
-                    sciCalcExpression = '';
-                }
-            } else {
-                sciCalcExpression += operator;
-                document.getElementById('sciDisplay').value = sciCalcExpression;
-            }
-        }
-        function showCalculator(calcId) {
-            const calculators = document.querySelectorAll('.calculator');
-            calculators.forEach(calc => {
-                calc.style.display = 'none'; // Hide all calculators
-            });
-            document.getElementById(calcId).style.display = 'block'; // Show selected calculator
-        }
+function clearSciCalc() {
+    currentInput = '';
+    document.getElementById('sciDisplay').value = '0';
+}
+
+
 
         function calculateTime() {
             const distance = parseFloat(document.getElementById('distance').value);
@@ -529,8 +557,9 @@ function convertNumeralSystem() {
 }
 
 
-        // Show the initial calculator (Distance to Time)
-        showCalculator('distanceCalc');
+// Show the initial calculator
+        showCalculator('scientificCalc');
+
 
         // Update footer year dynamically
         document.getElementById('year').innerText = new Date().getFullYear();
