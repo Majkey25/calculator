@@ -321,7 +321,7 @@
 
             document.getElementById('weightResult').innerText = `Converted Weight: ${result.toFixed(2)} ${toUnit.charAt(0).toUpperCase() + toUnit.slice(1)}`;
         }
-        function convertNumeralSystem() {
+function convertNumeralSystem() {
     const sourceNum = document.getElementById('sourceNum').value;
     const sourceBase = parseInt(document.getElementById('sourceBase').value);
     const targetBase = parseInt(document.getElementById('targetBase').value);
@@ -417,11 +417,26 @@
         if (targetBase === 10) { // Hexadecimal to Decimal
             result = decimalNumber;
             conversionSteps += `Conversion from 16s system to 10s system:\n`;
-            conversionSteps += `${sourceNum} ≙ ${decimalNumber}\n`;
+            for (let i = 0; i < sourceNum.length; i++) {
+                const digitValue = parseInt(sourceNum[i], 16);
+                conversionSteps += `${sourceNum[i]} ∙ 16<sup>${sourceNum.length - 1 - i}</sup> `;
+                if (i < sourceNum.length - 1) {
+                    conversionSteps += '+ ';
+                }
+            }
+            conversionSteps += `= ${decimalNumber}\n`;
         } else if (targetBase === 2) { // Hexadecimal to Binary
             result = decimalNumber.toString(2);
             conversionSteps += `Conversion from 16s system to 10s system:\n`;
-            conversionSteps += `${sourceNum} ≙ ${decimalNumber}\n`;
+            for (let i = 0; i < sourceNum.length; i++) {
+                const digitValue = parseInt(sourceNum[i], 16);
+                conversionSteps += `${sourceNum[i]} ∙ 16<sup>${sourceNum.length - 1 - i}</sup> `;
+                if (i < sourceNum.length - 1) {
+                    conversionSteps += '+ ';
+                }
+            }
+            conversionSteps += `= ${decimalNumber}\n`;
+
             conversionSteps += `Conversion from 10s system to 2s system:\n`;
             for (let i = 0; i < result.length; i++) {
                 conversionSteps += `${result[i]} ∙ 2<sup>${result.length - 1 - i}</sup> `;
