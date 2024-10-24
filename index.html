@@ -402,14 +402,12 @@ function convertNumeralSystem() {
                 num = Math.floor(num / 16);
             }
 
-            // Format division steps with alignment
-            for (let step of divisionSteps.reverse()) {
+            for (let step of divisionSteps) {
                 const parts = step.split(' R ');
                 const leftSide = parts[0].padEnd(20, ' '); // Align left side
                 const rightSide = 'R ' + parts[1];
                 conversionSteps += leftSide + rightSide + '\n';
             }
-
             conversionSteps += `${sourceNum} ≙ ${result}₁₆`;
         }
     } else if (sourceBase === 16) { // Hexadecimal to Decimal or Binary
