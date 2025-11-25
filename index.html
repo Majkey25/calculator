@@ -1,352 +1,529 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="icon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
     <title>Multi-purpose Calculator</title>
     <style>
+        :root {
+            --bg: #080b12;
+            --card: rgba(255, 255, 255, 0.08);
+            --card-strong: rgba(255, 255, 255, 0.14);
+            --text: #e7ecf5;
+            --muted: #9fb1d3;
+            --accent: #7cf3ff;
+            --accent-2: #9f7bff;
+            --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+            --radius: 16px;
+            --glass-blur: blur(16px);
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
             margin: 0;
-            padding-top: 20px;
-            overflow-x: hidden; /* Prevent horizontal overflow on body */
+            min-height: 100vh;
+            font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+            color: var(--text);
+            background: radial-gradient(circle at 20% 20%, rgba(127, 255, 212, 0.08), transparent 25%),
+                        radial-gradient(circle at 80% 0%, rgba(159, 123, 255, 0.12), transparent 25%),
+                        linear-gradient(135deg, #070a12 0%, #0d1220 45%, #090c14 100%);
+            display: flex;
+            justify-content: center;
+            padding: 36px 18px 48px;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.7;
+            z-index: 0;
+            animation: float 12s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        body::before {
+            background: rgba(124, 243, 255, 0.28);
+            top: -120px;
+            left: -60px;
+        }
+
+        body::after {
+            background: rgba(159, 123, 255, 0.32);
+            bottom: -100px;
+            right: -40px;
+            animation-delay: 3s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-14px); }
+        }
+
+        main {
+            width: min(1100px, 100%);
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 22px;
+            padding: 18px 20px;
+            border-radius: var(--radius);
+            background: var(--card);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: var(--shadow);
         }
 
         h1 {
-            color: #333;
+            margin: 0;
+            font-size: clamp(24px, 3vw, 30px);
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
         }
 
         .menu-container {
-            width: 80%; /* Set to a specific width */
-            max-width: 800px; /* Optional: max width to keep it manageable */
-            overflow-x: auto; /* Enable horizontal scrolling */
-            white-space: nowrap; /* Prevent wrapping of buttons */
-            padding: 0 10px; /* Add some padding */
-            text-align: center; /* Center align buttons */
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scrollbar-width: thin;
         }
 
         .menu {
-            display: inline-flex; /* Use inline-flex to keep it in a single line */
+            display: inline-flex;
             gap: 10px;
-            margin-bottom: 20px;
+            padding: 12px;
+            background: var(--card);
+            backdrop-filter: var(--glass-blur);
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: var(--shadow);
         }
 
         .menu button {
-            background-color: #28a745;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text);
+            background: linear-gradient(135deg, rgba(124, 243, 255, 0.16), rgba(159, 123, 255, 0.16));
+            padding: 12px 16px;
+            border-radius: 12px;
             cursor: pointer;
-            white-space: nowrap; /* Keep buttons on one line */
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+            white-space: nowrap;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
         }
 
         .menu button:hover {
-            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+            border-color: rgba(124, 243, 255, 0.6);
+            background: linear-gradient(135deg, rgba(124, 243, 255, 0.28), rgba(159, 123, 255, 0.26));
         }
 
-        .calculator, .scientific-calculator {
-            display: none; /* Initially hidden */
-            background-color: #fff;
+        .menu button.active {
+            border-color: rgba(124, 243, 255, 0.9);
+            background: linear-gradient(135deg, rgba(124, 243, 255, 0.32), rgba(159, 123, 255, 0.32));
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+        }
+
+        .panels {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .calculator,
+        .scientific-calculator {
+            display: none;
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius);
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 300px;
-            width: 100%;
-            margin-bottom: 30px;
-            animation: fadeIn 0.5s; /* Animation for appearing */
-            text-align: center; /* Center the content */
+            backdrop-filter: var(--glass-blur);
+            box-shadow: var(--shadow);
+            animation: fadeIn 280ms ease;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        label, select, input {
+        h2 {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            letter-spacing: -0.01em;
+        }
+
+        .description {
+            margin: 0 0 14px 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        label {
             display: block;
-            width: 100%;
-            margin: 10px 0;
+            margin: 12px 0 6px 0;
+            font-weight: 600;
+            color: var(--text);
         }
 
-        button {
-            background-color: #28a745;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
+        input,
+        select {
+            width: 100%;
+            padding: 11px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: rgba(124, 243, 255, 0.6);
+            box-shadow: 0 0 0 3px rgba(124, 243, 255, 0.14);
+        }
+
+        .action-button {
+            margin-top: 14px;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(124, 243, 255, 0.35);
+            background: linear-gradient(135deg, rgba(124, 243, 255, 0.24), rgba(159, 123, 255, 0.24));
+            color: var(--text);
+            font-weight: 700;
             cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            border-color: rgba(124, 243, 255, 0.7);
+            box-shadow: 0 18px 34px rgba(0, 0, 0, 0.36);
+        }
+
+        .action-button:active { transform: translateY(0); }
+
+        .display {
             width: 100%;
-        }
-
-        button:hover {
-            background-color: #218838;
-        }
-
-        footer {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #888;
-            text-align: center;
-        }
-
-        #calculationPath, #calculationResult {
-            white-space: pre-wrap; /* Preserve formatting in the conversion path */
-            margin-top: 10px;
-            padding: 10px; /* Padding for better appearance */
-            background-color: #f9f9f9; /* Background for visibility */
-            border: 1px solid #ddd; /* Border for separation */
-            border-radius: 5px; /* Rounded corners */
-            overflow-x: auto; /* Allow horizontal scrolling */
-        }
-
-        @media (max-width: 400px) {
-            .calculator {
-                padding: 15px;
-                font-size: 14px;
-            }
-            h1 {
-                font-size: 24px;
-            }
-        }
-
-        .calculation-table {
-            display: table;
-            width: 100%;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
-        .calculation-row {
-            display: table-row;
-        }
-
-        .calculation-cell {
-            display: table-cell;
-            padding: 5px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-
-        .calculation-cell:last-child {
-            border-right: none; /* Remove border from the last cell */
-        }
-
-        .scientific-calculator {
-            max-width: 300px; /* Decrease max-width for narrowness */
-            width: 100%; /* Ensure it takes full width available */
-            padding: 15px; /* Reduce padding for a more compact look */
-        }
-
-        .scientific-calculator input {
-            font-size: 18px; /* Slightly smaller font size for mobile */
+            padding: 14px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            font-size: 22px;
             text-align: right;
+            letter-spacing: 0.06em;
         }
 
         .scientific-buttons {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4, minmax(62px, 1fr));
             gap: 10px;
-            margin-top: 10px;
+            margin-top: 12px;
         }
 
-        .scientific-buttons button {
-            padding: 12px; /* Smaller padding for buttons */
-            font-size: 16px; /* Slightly smaller font size for buttons */
+        .calc-button {
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: var(--card-strong);
+            color: var(--text);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.14s ease, box-shadow 0.14s ease, background 0.14s ease;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
+        }
+
+        .calc-button.operator {
+            background: linear-gradient(135deg, rgba(124, 243, 255, 0.22), rgba(159, 123, 255, 0.22));
+            border-color: rgba(124, 243, 255, 0.5);
+        }
+
+        .calc-button.equal {
+            background: linear-gradient(135deg, rgba(124, 243, 255, 0.32), rgba(159, 123, 255, 0.32));
+            border-color: rgba(124, 243, 255, 0.8);
+            grid-column: span 2;
+        }
+
+        .calc-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 30px rgba(0, 0, 0, 0.32);
+        }
+
+        .result {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text);
+            min-height: 28px;
+        }
+
+        #calculationPath {
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--muted);
+            font-size: 14px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        footer {
+            margin-top: 18px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        footer a { color: inherit; text-decoration: none; }
+        footer a:hover { color: var(--accent); }
+
+        @media (max-width: 720px) {
+            header { flex-direction: column; align-items: flex-start; }
+            .panels { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
+    <main>
+        <header>
+            <div>
+                <h1>Multi-purpose Calculator</h1>
+                <p class="subtitle">Fast conversions with a clean, glassy finish.</p>
+            </div>
+        </header>
 
-    <h1>Multi-purpose Calculator</h1>
-    <div class="menu-container"> <!-- Wrap the menu with this container -->
-        <div class="menu">
-            <button onclick="showCalculator('scientificCalc')">Calculator</button>
-            <button onclick="showCalculator('distanceCalc')">Distance to Time</button>
-            <button onclick="showCalculator('tempCalc')">Temperature Conversion</button>
-            <button onclick="showCalculator('weightCalc')">Weight Conversion</button>
-            <button onclick="showCalculator('numeralCalc')">Numeral Systems</button>
+        <div class="menu-container">
+            <div class="menu" id="menu">
+                <button class="active" data-target="scientificCalc">Calculator</button>
+                <button data-target="distanceCalc">Distance to Time</button>
+                <button data-target="tempCalc">Temperature Conversion</button>
+                <button data-target="weightCalc">Weight Conversion</button>
+                <button data-target="numeralCalc">Numeral Systems</button>
+            </div>
         </div>
-    </div>
-    <div class="scientific-calculator" id="scientificCalc">
-        <h2>Calculator</h2>
-        <input type="text" id="sciDisplay" placeholder="0" disabled>
-        <div class="scientific-buttons">
-            <button onclick="appendSciCalc('7')">7</button>
-            <button onclick="appendSciCalc('8')">8</button>
-            <button onclick="appendSciCalc('9')">9</button>
-            <button onclick="performSciCalc('÷')">÷</button>
 
-            <button onclick="appendSciCalc('4')">4</button>
-            <button onclick="appendSciCalc('5')">5</button>
-            <button onclick="appendSciCalc('6')">6</button>
-            <button onclick="performSciCalc('×')">×</button>
+        <div class="panels">
+            <div class="scientific-calculator" id="scientificCalc">
+                <h2>Calculator</h2>
+                <p class="description">Lightweight four-function calculator with quick operators.</p>
+                <input class="display" type="text" id="sciDisplay" placeholder="0" disabled>
+                <div class="scientific-buttons">
+                    <button class="calc-button" onclick="appendSciCalc('7')">7</button>
+                    <button class="calc-button" onclick="appendSciCalc('8')">8</button>
+                    <button class="calc-button" onclick="appendSciCalc('9')">9</button>
+                    <button class="calc-button operator" onclick="performSciCalc('/')">&divide;</button>
 
-            <button onclick="appendSciCalc('1')">1</button>
-            <button onclick="appendSciCalc('2')">2</button>
-            <button onclick="appendSciCalc('3')">3</button>
-            <button onclick="performSciCalc('-')">-</button>
+                    <button class="calc-button" onclick="appendSciCalc('4')">4</button>
+                    <button class="calc-button" onclick="appendSciCalc('5')">5</button>
+                    <button class="calc-button" onclick="appendSciCalc('6')">6</button>
+                    <button class="calc-button operator" onclick="performSciCalc('*')">&times;</button>
 
-            <button onclick="appendSciCalc('0')">0</button>
-            <button onclick="performSciCalc('.')">.</button>
-            <button onclick="performSciCalc('=')">=</button>
-            <button onclick="performSciCalc('+')">+</button>
-            <button onclick="clearSciCalc()">C</button>
+                    <button class="calc-button" onclick="appendSciCalc('1')">1</button>
+                    <button class="calc-button" onclick="appendSciCalc('2')">2</button>
+                    <button class="calc-button" onclick="appendSciCalc('3')">3</button>
+                    <button class="calc-button operator" onclick="performSciCalc('-')">-</button>
+
+                    <button class="calc-button" onclick="appendSciCalc('0')">0</button>
+                    <button class="calc-button operator" onclick="performSciCalc('.')">.</button>
+                    <button class="calc-button equal" onclick="performSciCalc('=')">=</button>
+                    <button class="calc-button operator" onclick="performSciCalc('+')">+</button>
+                    <button class="calc-button operator" onclick="clearSciCalc()">C</button>
+                </div>
+            </div>
+
+            <div class="calculator" id="distanceCalc">
+                <h2>Distance and Speed</h2>
+                <p class="description">Convert distance and average speed to a time estimate.</p>
+                <label for="distance">Distance</label>
+                <input type="number" id="distance" placeholder="Enter distance">
+                <select id="distanceUnit">
+                    <option value="m">Meters</option>
+                    <option value="km">Kilometers</option>
+                </select>
+
+                <label for="speed">Average Speed</label>
+                <input type="number" id="speed" placeholder="Enter speed">
+                <select id="speedUnit">
+                    <option value="mps">m/s</option>
+                    <option value="kmph">km/h</option>
+                </select>
+
+                <button class="action-button" onclick="calculateTime()">Calculate Time</button>
+                <div class="result" id="result"></div>
+            </div>
+
+            <div class="calculator" id="tempCalc">
+                <h2>Temperature</h2>
+                <p class="description">Convert between Celsius, Fahrenheit and Kelvin.</p>
+                <label for="temperature">Temperature</label>
+                <input type="number" id="temperature" placeholder="Enter temperature">
+                <select id="tempFrom">
+                    <option value="celsius">Celsius</option>
+                    <option value="fahrenheit">Fahrenheit</option>
+                    <option value="kelvin">Kelvin</option>
+                </select>
+                <label for="tempTo">Convert to</label>
+                <select id="tempTo">
+                    <option value="celsius">Celsius</option>
+                    <option value="fahrenheit">Fahrenheit</option>
+                    <option value="kelvin">Kelvin</option>
+                </select>
+
+                <button class="action-button" onclick="convertTemperature()">Convert Temperature</button>
+                <div class="result" id="tempResult"></div>
+            </div>
+
+            <div class="calculator" id="weightCalc">
+                <h2>Weight</h2>
+                <p class="description">Convert between kilograms, grams and pounds.</p>
+                <label for="weight">Weight</label>
+                <input type="number" id="weight" placeholder="Enter weight">
+                <select id="weightFrom">
+                    <option value="kg">Kilograms</option>
+                    <option value="g">Grams</option>
+                    <option value="lb">Pounds</option>
+                </select>
+                <label for="weightTo">Convert to</label>
+                <select id="weightTo">
+                    <option value="kg">Kilograms</option>
+                    <option value="g">Grams</option>
+                    <option value="lb">Pounds</option>
+                </select>
+
+                <button class="action-button" onclick="convertWeight()">Convert Weight</button>
+                <div class="result" id="weightResult"></div>
+            </div>
+
+            <div class="calculator" id="numeralCalc">
+                <h2>Numeral Systems</h2>
+                <p class="description">Step-by-step conversion across decimal, binary and hex.</p>
+                <label for="sourceNum">Source Number</label>
+                <input type="text" id="sourceNum" placeholder="Enter number (0-9, A-F)">
+
+                <label for="sourceBase">Source Base</label>
+                <select id="sourceBase">
+                    <option value="10">Decimal (10)</option>
+                    <option value="2">Binary (2)</option>
+                    <option value="16">Hexadecimal (16)</option>
+                </select>
+
+                <label for="targetBase">Target Base</label>
+                <select id="targetBase">
+                    <option value="10">Decimal (10)</option>
+                    <option value="2">Binary (2)</option>
+                    <option value="16">Hexadecimal (16)</option>
+                </select>
+
+                <button class="action-button" onclick="convertNumeralSystem()">Convert</button>
+
+                <div class="result" id="conversionResult"></div>
+                <div id="calculationPath"></div>
+            </div>
         </div>
-    </div>
 
-    <!-- Distance and Speed to Time Calculator -->
-    <div class="calculator" id="distanceCalc">
-        <h2>Convert Distance and Speed to Time</h2>
-        <label for="distance">Distance</label>
-        <input type="number" id="distance" placeholder="Enter distance">
-        <select id="distanceUnit">
-            <option value="m">Meters</option>
-            <option value="km">Kilometers</option>
-        </select>
-
-        <label for="speed">Average Speed</label>
-        <input type="number" id="speed" placeholder="Enter speed">
-        <select id="speedUnit">
-            <option value="mps">m/s</option>
-            <option value="kmph">km/h</option>
-        </select>
-
-        <button onclick="calculateTime()">Calculate Time</button>
-
-        <p id="result"></p>
-    </div>
-
-    <!-- Temperature Conversion -->
-    <div class="calculator" id="tempCalc">
-        <h2>Temperature Conversion</h2>
-        <label for="temperature">Temperature</label>
-        <input type="number" id="temperature" placeholder="Enter temperature">
-        <select id="tempFrom">
-            <option value="celsius">Celsius</option>
-            <option value="fahrenheit">Fahrenheit</option>
-            <option value="kelvin">Kelvin</option>
-        </select>
-        <span>to</span>
-        <select id="tempTo">
-            <option value="celsius">Celsius</option>
-            <option value="fahrenheit">Fahrenheit</option>
-            <option value="kelvin">Kelvin</option>
-        </select>
-
-        <button onclick="convertTemperature()">Convert Temperature</button>
-
-        <p id="tempResult"></p>
-    </div>
-
-    <!-- Weight Conversion -->
-    <div class="calculator" id="weightCalc">
-        <h2>Weight Conversion</h2>
-        <label for="weight">Weight</label>
-        <input type="number" id="weight" placeholder="Enter weight">
-        <select id="weightFrom">
-            <option value="kg">Kilograms</option>
-            <option value="g">Grams</option>
-            <option value="lb">Pounds</option>
-        </select>
-        <span>to</span>
-        <select id="weightTo">
-            <option value="kg">Kilograms</option>
-            <option value="g">Grams</option>
-            <option value="lb">Pounds</option>
-        </select>
-
-        <button onclick="convertWeight()">Convert Weight</button>
-
-        <p id="weightResult"></p>
-    </div>
-
-    <!-- Numeral Systems Converter -->
-    <div class="calculator" id="numeralCalc">
-        <h2>Numeral Systems Converter</h2>
-        <label for="sourceNum">Source Number</label>
-        <input type="text" id="sourceNum" placeholder="Enter number (0-9, A-F)">
-
-        <label for="sourceBase">Source Base</label>
-        <select id="sourceBase">
-            <option value="10">Decimal (10)</option>
-            <option value="2">Binary (2)</option>
-            <option value="16">Hexadecimal (16)</option>
-        </select>
-
-        <label for="targetBase">Target Base</label>
-        <select id="targetBase">
-            <option value="10">Decimal (10)</option>
-            <option value="2">Binary (2)</option>
-            <option value="16">Hexadecimal (16)</option>
-        </select>
-
-        <button onclick="convertNumeralSystem()">Convert</button>
-
-        <p id="conversionResult"></p>
-        <div id="calculationPath" class="calculation-table"></div>
-    </div>
-
-    <footer style="display: flex; justify-content: center; align-items: center; text-align: center;">
-        <a href="https://majkey25.github.io/My-website-for-fun/" style="text-decoration: none; color: inherit;">
-            <p style="margin: 1;">Made by Matěj Teplý &copy; <span id="year"></span> All rights reserved.</p>
-        </a>
-    </footer>
+        <footer>
+            <a href="https://majkey25.github.io/My-website-for-fun/">Made by Matej Teply &copy; <span id="year"></span> All rights reserved.</a>
+        </footer>
+    </main>
 
     <script>
-       function showCalculator(calcId) {
-    // Hide all calculators
-    const calculators = document.querySelectorAll('.calculator, .scientific-calculator');
-    calculators.forEach(calc => {
-        calc.style.display = 'none'; // Hide all calculators
-    });
-    
-    // Show selected calculator
-    const selectedCalculator = document.getElementById(calcId);
-    if (selectedCalculator) {
-        selectedCalculator.style.display = 'block'; // Show the selected calculator
-    }
-}
- // Scientific Calculator Functions
- let currentInput = '';
+        const menu = document.getElementById('menu');
 
-function appendSciCalc(value) {
-    const display = document.getElementById('sciDisplay');
-    if (display.value === '0' || currentInput === '') {
-        currentInput = value;
-    } else {
-        currentInput += value;
-    }
-    display.value = currentInput;
-}
-
-function performSciCalc(operation) {
-    const display = document.getElementById('sciDisplay');
-    if (operation === '=') {
-        try {
-            currentInput = eval(currentInput.replace('×', '*').replace('÷', '/'));
-        } catch {
-            currentInput = 'Error';
+        function setActiveButton(targetId) {
+            const buttons = menu.querySelectorAll('button');
+            buttons.forEach(button => {
+                const isTarget = button.dataset.target === targetId;
+                button.classList.toggle('active', isTarget);
+            });
         }
-        display.value = currentInput;
-    } else {
-        currentInput += operation;
-        display.value = currentInput;
-    }
-}
 
-function clearSciCalc() {
-    currentInput = '';
-    document.getElementById('sciDisplay').value = '0';
-}
+        function showCalculator(calcId) {
+            const calculators = document.querySelectorAll('.calculator, .scientific-calculator');
+            calculators.forEach(calc => { calc.style.display = 'none'; });
+            const selected = document.getElementById(calcId);
+            if (selected) {
+                selected.style.display = 'block';
+                setActiveButton(calcId);
+            }
+        }
 
+        menu.addEventListener('click', event => {
+            const target = event.target;
+            if (target instanceof HTMLButtonElement && target.dataset.target) {
+                showCalculator(target.dataset.target);
+            }
+        });
 
+        let currentInput = '';
+
+        function appendSciCalc(value) {
+            const display = document.getElementById('sciDisplay');
+            if (display.value === '0' || currentInput === '') {
+                currentInput = value;
+            } else {
+                currentInput += value;
+            }
+            display.value = currentInput;
+        }
+
+        function performSciCalc(operation) {
+            const display = document.getElementById('sciDisplay');
+            if (operation === '=') {
+                try {
+                    currentInput = eval(currentInput).toString();
+                } catch {
+                    currentInput = 'Error';
+                }
+                display.value = currentInput;
+                return;
+            }
+            if (operation === '.') {
+                currentInput += '.';
+                display.value = currentInput;
+                return;
+            }
+            currentInput += operation;
+            display.value = currentInput;
+        }
+
+        function clearSciCalc() {
+            currentInput = '';
+            document.getElementById('sciDisplay').value = '0';
+        }
 
         function calculateTime() {
             const distance = parseFloat(document.getElementById('distance').value);
@@ -354,60 +531,71 @@ function clearSciCalc() {
             const distanceUnit = document.getElementById('distanceUnit').value;
             const speedUnit = document.getElementById('speedUnit').value;
 
-            let distanceInMeters = distance;
-            let speedInMetersPerSecond = speed;
-
-            if (distanceUnit === 'km') {
-                distanceInMeters = distance * 1000;
+            if (Number.isNaN(distance) || Number.isNaN(speed) || speed === 0) {
+                document.getElementById('result').innerText = 'Enter valid distance and speed.';
+                return;
             }
 
-            if (speedUnit === 'kmph') {
-                speedInMetersPerSecond = speed / 3.6;
-            }
+            let distanceMeters = distance;
+            let speedMetersPerSecond = speed;
 
-            let timeInSeconds = distanceInMeters / speedInMetersPerSecond;
+            if (distanceUnit === 'km') { distanceMeters = distance * 1000; }
+            if (speedUnit === 'kmph') { speedMetersPerSecond = speed / 3.6; }
 
-            const hours = Math.floor(timeInSeconds / 3600);
-            timeInSeconds %= 3600;
-            const minutes = Math.floor(timeInSeconds / 60);
-            const seconds = Math.floor(timeInSeconds % 60);
-            const milliseconds = Math.floor((timeInSeconds % 1) * 1000);
+            let timeSeconds = distanceMeters / speedMetersPerSecond;
 
-            const result = `${hours}h ${minutes}min ${seconds}s ${milliseconds}ms`;
+            const hours = Math.floor(timeSeconds / 3600);
+            timeSeconds %= 3600;
+            const minutes = Math.floor(timeSeconds / 60);
+            const seconds = Math.floor(timeSeconds % 60);
+            const milliseconds = Math.floor((timeSeconds % 1) * 1000);
 
-            document.getElementById('result').innerText = `Time: ${result}`;
+            const formatted = `${hours}h ${minutes}m ${seconds}s ${milliseconds}ms`;
+            document.getElementById('result').innerText = `Time: ${formatted}`;
         }
 
         function convertTemperature() {
             const temperature = parseFloat(document.getElementById('temperature').value);
             const fromUnit = document.getElementById('tempFrom').value;
             const toUnit = document.getElementById('tempTo').value;
-            let result;
+
+            if (Number.isNaN(temperature)) {
+                document.getElementById('tempResult').innerText = 'Enter a temperature value.';
+                return;
+            }
+
+            let result = temperature;
 
             if (fromUnit === 'celsius' && toUnit === 'fahrenheit') {
-                result = (temperature * 9/5) + 32;
+                result = (temperature * 9 / 5) + 32;
             } else if (fromUnit === 'celsius' && toUnit === 'kelvin') {
                 result = temperature + 273.15;
             } else if (fromUnit === 'fahrenheit' && toUnit === 'celsius') {
-                result = (temperature - 32) * 5/9;
+                result = (temperature - 32) * 5 / 9;
             } else if (fromUnit === 'fahrenheit' && toUnit === 'kelvin') {
-                result = (temperature - 32) * 5/9 + 273.15;
+                result = (temperature - 32) * 5 / 9 + 273.15;
             } else if (fromUnit === 'kelvin' && toUnit === 'celsius') {
                 result = temperature - 273.15;
             } else if (fromUnit === 'kelvin' && toUnit === 'fahrenheit') {
-                result = (temperature - 273.15) * 9/5 + 32;
-            } else {
-                result = temperature; // Same unit
+                result = (temperature - 273.15) * 9 / 5 + 32;
             }
 
-            document.getElementById('tempResult').innerText = `Converted Temperature: ${result.toFixed(2)} ${toUnit.charAt(0).toUpperCase() + toUnit.slice(1)}`;
+            const formattedUnit = toUnit.charAt(0).toUpperCase() + toUnit.slice(1);
+            document.getElementById('tempResult').innerText =
+                `Converted Temperature: ${result.toFixed(2)} ${formattedUnit}`;
         }
 
         function convertWeight() {
             const weight = parseFloat(document.getElementById('weight').value);
             const fromUnit = document.getElementById('weightFrom').value;
             const toUnit = document.getElementById('weightTo').value;
-            let result;
+
+            if (Number.isNaN(weight)) {
+                document.getElementById('weightResult').innerText = 'Enter a weight value.';
+                return;
+            }
+
+            let result = weight;
 
             if (fromUnit === 'kg' && toUnit === 'g') {
                 result = weight * 1000;
@@ -421,147 +609,128 @@ function clearSciCalc() {
                 result = weight / 2.20462;
             } else if (fromUnit === 'lb' && toUnit === 'g') {
                 result = weight / 0.00220462;
-            } else {
-                result = weight; // Same unit
             }
 
-            document.getElementById('weightResult').innerText = `Converted Weight: ${result.toFixed(2)} ${toUnit.charAt(0).toUpperCase() + toUnit.slice(1)}`;
+            const formattedUnit = toUnit.charAt(0).toUpperCase() + toUnit.slice(1);
+            document.getElementById('weightResult').innerText =
+                `Converted Weight: ${result.toFixed(2)} ${formattedUnit}`;
         }
-function convertNumeralSystem() {
-    const sourceNum = document.getElementById('sourceNum').value;
-    const sourceBase = parseInt(document.getElementById('sourceBase').value);
-    const targetBase = parseInt(document.getElementById('targetBase').value);
-    let result = '';
-    let conversionSteps = '';
 
-    if (sourceBase === 2) { // Binary to Decimal or Hexadecimal
-        const decimalNumber = parseInt(sourceNum, 2);
-        if (targetBase === 10) { // Binary to Decimal
-            result = decimalNumber;
-            conversionSteps += `Conversion from 2s system to 10s system:\n`;
-            for (let i = 0; i < sourceNum.length; i++) {
-                conversionSteps += `${sourceNum[i]} ∙ 2<sup>${sourceNum.length - 1 - i}</sup> `;
-                if (i < sourceNum.length - 1) {
-                    conversionSteps += '+ ';
+        function convertNumeralSystem() {
+            const sourceValue = document.getElementById('sourceNum').value.trim();
+            const sourceBase = parseInt(document.getElementById('sourceBase').value, 10);
+            const targetBase = parseInt(document.getElementById('targetBase').value, 10);
+            const pathElement = document.getElementById('calculationPath');
+            const resultElement = document.getElementById('conversionResult');
+
+            if (!sourceValue) {
+                resultElement.innerText = 'Enter a number to convert.';
+                pathElement.innerText = '';
+                return;
+            }
+
+            let resultText = '';
+            let steps = '';
+
+            if (sourceBase === 2) {
+                const decimalNumber = parseInt(sourceValue, 2);
+                if (Number.isNaN(decimalNumber)) {
+                    resultElement.innerText = 'Invalid binary number.';
+                    pathElement.innerText = '';
+                    return;
+                }
+                if (targetBase === 10) {
+                    resultText = decimalNumber.toString(10);
+                    steps += 'Binary -> Decimal:\n';
+                    for (let i = 0; i < sourceValue.length; i++) {
+                        steps += `${sourceValue[i]} * 2^${sourceValue.length - 1 - i}`;
+                        steps += i < sourceValue.length - 1 ? ' + ' : ` = ${decimalNumber}\n`;
+                    }
+                } else if (targetBase === 16) {
+                    resultText = decimalNumber.toString(16).toUpperCase();
+                    steps += 'Binary -> Decimal:\n';
+                    for (let i = 0; i < sourceValue.length; i++) {
+                        steps += `${sourceValue[i]} * 2^${sourceValue.length - 1 - i}`;
+                        steps += i < sourceValue.length - 1 ? ' + ' : ` = ${decimalNumber}\n`;
+                    }
+                    steps += 'Decimal -> Hex:\n';
+                    let workingNumber = decimalNumber;
+                    const hexDigits = '0123456789ABCDEF';
+                    const divisionSteps = [];
+                    while (workingNumber > 0) {
+                        const remainder = workingNumber % 16;
+                        divisionSteps.push(`${workingNumber} / 16 = ${Math.floor(workingNumber / 16)} r ${remainder}`);
+                        workingNumber = Math.floor(workingNumber / 16);
+                    }
+                    divisionSteps.reverse().forEach(step => { steps += `${step}\n`; });
+                    steps += `${decimalNumber} -> ${resultText}`;
+                }
+            } else if (sourceBase === 10) {
+                const decimalNumber = parseInt(sourceValue, 10);
+                if (Number.isNaN(decimalNumber)) {
+                    resultElement.innerText = 'Invalid decimal number.';
+                    pathElement.innerText = '';
+                    return;
+                }
+                if (targetBase === 2) {
+                    resultText = '';
+                    steps += 'Decimal -> Binary:\n';
+                    let workingNumber = decimalNumber;
+                    while (workingNumber > 0) {
+                        resultText = (workingNumber % 2) + resultText;
+                        steps += `${workingNumber} / 2 = ${Math.floor(workingNumber / 2)} r ${workingNumber % 2}\n`;
+                        workingNumber = Math.floor(workingNumber / 2);
+                    }
+                    steps += `${sourceValue} -> ${resultText}`;
+                } else if (targetBase === 16) {
+                    const hexDigits = '0123456789ABCDEF';
+                    resultText = '';
+                    steps += 'Decimal -> Hex:\n';
+                    let workingNumber = decimalNumber;
+                    const divisionSteps = [];
+                    while (workingNumber > 0) {
+                        const remainder = workingNumber % 16;
+                        resultText = hexDigits[remainder] + resultText;
+                        divisionSteps.push(`${workingNumber} / 16 = ${Math.floor(workingNumber / 16)} r ${remainder}`);
+                        workingNumber = Math.floor(workingNumber / 16);
+                    }
+                    divisionSteps.forEach(step => { steps += `${step}\n`; });
+                    steps += `${sourceValue} -> ${resultText}`;
+                }
+            } else if (sourceBase === 16) {
+                const decimalNumber = parseInt(sourceValue, 16);
+                if (Number.isNaN(decimalNumber)) {
+                    resultElement.innerText = 'Invalid hexadecimal number.';
+                    pathElement.innerText = '';
+                    return;
+                }
+                if (targetBase === 10) {
+                    resultText = decimalNumber.toString(10);
+                    steps += 'Hex -> Decimal:\n';
+                    for (let i = 0; i < sourceValue.length; i++) {
+                        steps += `${sourceValue[i]} * 16^${sourceValue.length - 1 - i}`;
+                        steps += i < sourceValue.length - 1 ? ' + ' : ` = ${decimalNumber}\n`;
+                    }
+                } else if (targetBase === 2) {
+                    resultText = decimalNumber.toString(2);
+                    steps += 'Hex -> Decimal:\n';
+                    for (let i = 0; i < sourceValue.length; i++) {
+                        steps += `${sourceValue[i]} * 16^${sourceValue.length - 1 - i}`;
+                        steps += i < sourceValue.length - 1 ? ' + ' : ` = ${decimalNumber}\n`;
+                    }
+                    steps += 'Decimal -> Binary:\n';
+                    for (let i = 0; i < resultText.length; i++) {
+                        steps += `${resultText[i]} * 2^${resultText.length - 1 - i}`;
+                        steps += i < resultText.length - 1 ? ' + ' : ` = ${resultText}`;
+                    }
                 }
             }
-            conversionSteps += `= ${decimalNumber}\n`;
-        } else if (targetBase === 16) { // Binary to Hexadecimal
-            result = decimalNumber.toString(16).toUpperCase();
-            conversionSteps += `Conversion from 2s system to 10s system:\n`;
-            for (let i = 0; i < sourceNum.length; i++) {
-                conversionSteps += `${sourceNum[i]} ∙ 2<sup>${sourceNum.length - 1 - i}</sup> `;
-                if (i < sourceNum.length - 1) {
-                    conversionSteps += '+ ';
-                }
-            }
-            conversionSteps += `= ${decimalNumber}\n`;
 
-            // Conversion from Decimal to Hexadecimal
-            conversionSteps += `Conversion from 10s system to 16s system:\n`;
-            let tempDecimal = decimalNumber;
-            const hexDigits = '0123456789ABCDEF';
-            let hexResult = '';
-            let divisionSteps = [];
-
-            while (tempDecimal > 0) {
-                let remainder = tempDecimal % 16;
-                hexResult = hexDigits[remainder] + hexResult;
-                divisionSteps.push(`${tempDecimal} : 16 = ${Math.floor(tempDecimal / 16)} R ${remainder}`);
-                tempDecimal = Math.floor(tempDecimal / 16);
-            }
-
-            // Format division steps with alignment
-            for (let step of divisionSteps.reverse()) {
-                const parts = step.split(' R ');
-                const leftSide = parts[0].padEnd(20, ' '); // Align left side
-                const rightSide = 'R ' + parts[1];
-                conversionSteps += leftSide + rightSide + '\n';
-            }
-
-            conversionSteps += `${decimalNumber} ≙ ${hexResult}₁₆`;
-            result = hexResult;
+            resultElement.innerText = `Converted Value: ${resultText}`;
+            pathElement.innerText = steps;
         }
-    } else if (sourceBase === 10) { // Decimal to Binary or Hexadecimal
-        let decimalNumber = parseInt(sourceNum, 10);
-        if (targetBase === 2) { // Decimal to Binary
-            result = '';
-            conversionSteps += `Conversion from 10s system to 2s system:\n`;
-            let num = decimalNumber;
-            while (num > 0) {
-                result = (num % 2) + result;
-                conversionSteps += `${num} : 2 = ${Math.floor(num / 2)} R ${num % 2}\n`;
-                num = Math.floor(num / 2);
-            }
-            conversionSteps += `${sourceNum} ≙ ${result}₂`;
-        } else if (targetBase === 16) { // Decimal to Hexadecimal
-            let num = decimalNumber;
-            const hexDigits = '0123456789ABCDEF';
-            result = '';
-            conversionSteps += `Conversion from 10s system to 16s system:\n`;
-            let divisionSteps = [];
 
-            while (num > 0) {
-                let remainder = num % 16;
-                result = hexDigits[remainder] + result;
-                divisionSteps.push(`${num} : 16 = ${Math.floor(num / 16)} R ${remainder}`);
-                num = Math.floor(num / 16);
-            }
-
-            for (let step of divisionSteps) {
-                const parts = step.split(' R ');
-                const leftSide = parts[0].padEnd(20, ' '); // Align left side
-                const rightSide = 'R ' + parts[1];
-                conversionSteps += leftSide + rightSide + '\n';
-            }
-            conversionSteps += `${sourceNum} ≙ ${result}₁₆`;
-        }
-    } else if (sourceBase === 16) { // Hexadecimal to Decimal or Binary
-        const decimalNumber = parseInt(sourceNum, 16);
-        if (targetBase === 10) { // Hexadecimal to Decimal
-            result = decimalNumber;
-            conversionSteps += `Conversion from 16s system to 10s system:\n`;
-            for (let i = 0; i < sourceNum.length; i++) {
-                const digitValue = parseInt(sourceNum[i], 16);
-                conversionSteps += `${sourceNum[i]} ∙ 16<sup>${sourceNum.length - 1 - i}</sup> `;
-                if (i < sourceNum.length - 1) {
-                    conversionSteps += '+ ';
-                }
-            }
-            conversionSteps += `= ${decimalNumber}\n`;
-        } else if (targetBase === 2) { // Hexadecimal to Binary
-            result = decimalNumber.toString(2);
-            conversionSteps += `Conversion from 16s system to 10s system:\n`;
-            for (let i = 0; i < sourceNum.length; i++) {
-                const digitValue = parseInt(sourceNum[i], 16);
-                conversionSteps += `${sourceNum[i]} ∙ 16<sup>${sourceNum.length - 1 - i}</sup> `;
-                if (i < sourceNum.length - 1) {
-                    conversionSteps += '+ ';
-                }
-            }
-            conversionSteps += `= ${decimalNumber}\n`;
-
-            conversionSteps += `Conversion from 10s system to 2s system:\n`;
-            for (let i = 0; i < result.length; i++) {
-                conversionSteps += `${result[i]} ∙ 2<sup>${result.length - 1 - i}</sup> `;
-                if (i < result.length - 1) {
-                    conversionSteps += '+ ';
-                }
-            }
-            conversionSteps += `= ${result}`;
-        }
-    }
-
-    document.getElementById('conversionResult').innerHTML = `Converted Value: ${result}`;
-    document.getElementById('calculationPath').innerHTML = conversionSteps;
-}
-
-
-// Show the initial calculator
         showCalculator('scientificCalc');
-
-
-        // Update footer year dynamically
         document.getElementById('year').innerText = new Date().getFullYear();
     </script>
 </body>
