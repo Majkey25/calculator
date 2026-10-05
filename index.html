@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="icon.png" type="image/png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
     <title>Multi-purpose Calculator</title>
     <style>
         :root {
@@ -41,6 +38,7 @@
         button { touch-action: manipulation; }
 
         button:focus-visible,
+        a:focus-visible,
         input:focus-visible,
         select:focus-visible,
         output:focus-visible {
@@ -54,6 +52,9 @@
             grid-template-rows: auto 1fr;
             min-height: 100vh;
         }
+
+        footer { padding: 20px 28px; border-top: 1px solid var(--border); }
+        footer a { color: #0756d6; }
 
         header {
             grid-column: 1;
@@ -652,6 +653,8 @@
         </div>
     </main>
 
+    <footer><a href="legal.html">Privacy, terms and contact</a></footer>
+
     <script>
         const menu = document.getElementById('menu');
         const menuButtons = [...menu.querySelectorAll('[role="tab"]')];
@@ -873,7 +876,7 @@
             }
 
             const interactiveTarget = event.target instanceof Element
-                ? event.target.closest('button, input, select, textarea')
+                ? event.target.closest('a[href], button, input, select, textarea')
                 : null;
             const isKeypadButton = interactiveTarget?.matches('#scientificButtons button');
             if (interactiveTarget && (!isKeypadButton || event.key === 'Enter' || event.key === ' ')) { return; }
