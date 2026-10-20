@@ -928,17 +928,16 @@
             if (distanceUnit === 'km') { distanceMeters = distance * 1000; }
             if (speedUnit === 'kmph') { speedMetersPerSecond = speed / 3.6; }
 
-            let timeSeconds = distanceMeters / speedMetersPerSecond;
-            if (!Number.isFinite(timeSeconds)) {
+            const timeMilliseconds = Math.round(distanceMeters / speedMetersPerSecond * 1000);
+            if (!Number.isFinite(timeMilliseconds)) {
                 document.getElementById('result').innerText = 'Distance or speed is too large.';
                 return;
             }
 
-            const hours = Math.floor(timeSeconds / 3600);
-            timeSeconds %= 3600;
-            const minutes = Math.floor(timeSeconds / 60);
-            const seconds = Math.floor(timeSeconds % 60);
-            const milliseconds = Math.floor((timeSeconds % 1) * 1000);
+            const hours = Math.floor(timeMilliseconds / 3600000);
+            const minutes = Math.floor(timeMilliseconds / 60000) % 60;
+            const seconds = Math.floor(timeMilliseconds / 1000) % 60;
+            const milliseconds = timeMilliseconds % 1000;
 
             const formatted = `${hours}h ${minutes}m ${seconds}s ${milliseconds}ms`;
             document.getElementById('result').innerText = `Time: ${formatted}`;
